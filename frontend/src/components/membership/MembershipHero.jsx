@@ -28,7 +28,7 @@ function MembershipHero() {
         <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8">
 
           <h2 className="text-4xl font-bold">
-            1000+
+            1050+
           </h2>
 
           <p className="mt-2">
