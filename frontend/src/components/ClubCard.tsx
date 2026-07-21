@@ -117,11 +117,11 @@ export function SearchBar({
   );
 }
 
-export function ClubsLoading() {
+export function ClubsLoading({ label = 'Loading clubs...' }: { label?: string } = {}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
       <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-      <p className="text-sm">Loading clubs...</p>
+      <p className="text-sm">{label}</p>
     </div>
   );
 }

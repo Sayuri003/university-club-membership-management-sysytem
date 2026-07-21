@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   Building2,
+  CalendarDays,
+  BadgeCheck,
+  Megaphone,
   ArrowRight,
   Users,
   ShieldCheck,
@@ -13,6 +16,9 @@ import {
 const navItems = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/clubs', label: 'Clubs', icon: Building2 },
+  { to: '/admin/events', label: 'Events', icon: CalendarDays },
+  { to: '/admin/memberships', label: 'Memberships', icon: BadgeCheck },
+  { to: '/admin/notices', label: 'Notices', icon: Megaphone },
 ];
 
 export default function AdminDashboard() {
@@ -66,12 +72,20 @@ export default function AdminDashboard() {
           <p className="mt-2 max-w-md text-sm text-slate-600">
             Create new clubs, update details, or remove clubs that are no longer active.
           </p>
-          <Link
-            to="/admin/clubs"
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
-          >
-            Go to clubs <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              to="/admin/clubs"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
+            >
+              Go to clubs <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/admin/events"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            >
+              <CalendarDays className="h-4 w-4" /> Manage events
+            </Link>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -82,6 +96,24 @@ export default function AdminDashboard() {
               className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               Manage clubs <ArrowRight className="h-4 w-4 text-emerald-600" />
+            </Link>
+            <Link
+              to="/admin/events"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Manage events <ArrowRight className="h-4 w-4 text-emerald-600" />
+            </Link>
+            <Link
+              to="/admin/memberships"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Manage memberships <ArrowRight className="h-4 w-4 text-emerald-600" />
+            </Link>
+            <Link
+              to="/admin/notices"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Manage notices <ArrowRight className="h-4 w-4 text-emerald-600" />
             </Link>
           </div>
         </div>

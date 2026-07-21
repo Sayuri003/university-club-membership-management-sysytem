@@ -10,6 +10,7 @@ const ADMIN_EMAIL = 'admin@ucms.com';
 interface AuthUser {
   email: string;
   role: Role;
+  userId: string;
 }
 
 interface AuthContextValue {
@@ -32,6 +33,13 @@ function deriveRole(email: string): Role {
   return email.toLowerCase() === ADMIN_EMAIL ? 'ADMIN' : 'USER';
 }
 
+// The backend's JWT currently exposes only email (no userId claim).
+// Derive a stable identifier from the email so membership requests can
+// reference a consistent user id until the backend returns one.
+function deriveUserId(email: string): string {
+  return email.toLowerCase();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -43,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedEmail = localStorage.getItem(EMAIL_KEY);
     if (storedToken && storedEmail) {
       setToken(storedToken);
-      setUser({ email: storedEmail, role: deriveRole(storedEmail) });
+      setUser({ email: storedEmail, role: deriveRole(storedEmail), userId: deriveUserId(storedEmail) });
     }
   }, []);
 
@@ -51,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(TOKEN_KEY, t);
     localStorage.setItem(EMAIL_KEY, email);
     setToken(t);
-    setUser({ email, role: deriveRole(email) });
+    setUser({ email, role: deriveRole(email), userId: deriveUserId(email) });
   };
 
   const login = useCallback(async (data: LoginRequest) => {

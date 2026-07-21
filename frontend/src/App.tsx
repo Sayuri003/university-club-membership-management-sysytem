@@ -6,8 +6,14 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UserDashboard from './pages/user/UserDashboard';
 import UserClubs from './pages/user/UserClubs';
+import UserEvents from './pages/user/UserEvents';
+import UserMemberships from './pages/user/UserMemberships';
+import UserNotices from './pages/user/UserNotices';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminClubs from './pages/admin/AdminClubs';
+import AdminEvents from './pages/admin/AdminEvents';
+import AdminMemberships from './pages/admin/AdminMemberships';
+import AdminNotices from './pages/admin/AdminNotices';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -44,6 +50,30 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/user/events"
+            element={
+              <ProtectedRoute>
+                <UserEvents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/memberships"
+            element={
+              <ProtectedRoute>
+                <UserMemberships />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/notices"
+            element={
+              <ProtectedRoute>
+                <UserNotices />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Admin area */}
           <Route
@@ -67,6 +97,30 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminClubs />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <AdminRoute>
+                <AdminEvents />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/memberships"
+            element={
+              <AdminRoute>
+                <AdminMemberships />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/notices"
+            element={
+              <AdminRoute>
+                <AdminNotices />
               </AdminRoute>
             }
           />

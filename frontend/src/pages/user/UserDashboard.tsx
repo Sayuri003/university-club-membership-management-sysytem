@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   Building2,
+  CalendarDays,
+  BadgeCheck,
+  Megaphone,
   ArrowRight,
   Users,
   ShieldCheck,
@@ -13,6 +16,9 @@ import {
 const navItems = [
   { to: '/user/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/user/clubs', label: 'Clubs', icon: Building2 },
+  { to: '/user/events', label: 'Events', icon: CalendarDays },
+  { to: '/user/memberships', label: 'Memberships', icon: BadgeCheck },
+  { to: '/user/notices', label: 'Notices', icon: Megaphone },
 ];
 
 export default function UserDashboard() {
@@ -66,12 +72,20 @@ export default function UserDashboard() {
           <p className="mt-2 max-w-md text-sm text-slate-600">
             Browse all registered clubs, learn what they do, and find the ones that match your interests.
           </p>
-          <Link
-            to="/user/clubs"
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
-          >
-            Browse clubs <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              to="/user/clubs"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
+            >
+              Browse clubs <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/user/events"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            >
+              <CalendarDays className="h-4 w-4" /> See events
+            </Link>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -82,6 +96,25 @@ export default function UserDashboard() {
               className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               All clubs <ArrowRight className="h-4 w-4 text-emerald-600" />
+            </Link>
+            <Link
+              to="/user/events"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Upcoming events <ArrowRight className="h-4 w-4 text-emerald-600" />
+
+            </Link>
+            <Link
+              to="/user/memberships"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              My memberships <ArrowRight className="h-4 w-4 text-emerald-600" />
+            </Link>
+            <Link
+              to="/user/notices"
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Notices <ArrowRight className="h-4 w-4 text-emerald-600" />
             </Link>
           </div>
         </div>
