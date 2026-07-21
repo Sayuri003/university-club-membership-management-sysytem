@@ -12,6 +12,8 @@ interface ApplyMembershipFormProps {
   onCancel: () => void;
 }
 
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
+
 export function ApplyMembershipForm({
   userId,
   existingClubIds,
@@ -67,20 +69,22 @@ export function ApplyMembershipForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-slate-700">Select a club</label>
+        <label style={mono} className="block text-[11px] font-medium uppercase tracking-[0.12em] text-[#14213D]/70">
+          Select a club
+        </label>
         <div className="relative">
-          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+          <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[#14213D]/40">
             <Building2 className="h-4 w-4" />
           </span>
           <select
             value={clubId}
             onChange={(e) => setClubId(e.target.value)}
-            className="input-field pl-11"
             disabled={loadingClubs}
+            className="w-full border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 pl-6 text-[15px] text-[#14213D] focus:border-[#B8863B] focus:outline-none focus:ring-0"
           >
             <option value="">{loadingClubs ? 'Loading clubs...' : 'Choose a club...'}</option>
             {available.map((c) => (
@@ -91,25 +95,35 @@ export function ApplyMembershipForm({
           </select>
         </div>
         {selectedClub?.description && (
-          <p className="mt-1 text-xs text-slate-500">{selectedClub.description}</p>
+          <p className="mt-1 text-xs text-[#14213D]/50">{selectedClub.description}</p>
         )}
         {!loadingClubs && available.length === 0 && (
-          <p className="mt-1 text-xs text-amber-600">
+          <p className="mt-1 text-xs text-[#B8863B]">
             You've already applied to every registered club.
           </p>
         )}
       </div>
 
-      <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-500">
-        <BadgeCheck className="mr-1.5 inline h-4 w-4 text-emerald-600" />
-        Your application starts as <strong>Pending</strong> until an admin approves it.
+      <div className="flex items-start gap-2.5 rounded-sm border border-[#B8863B]/30 bg-[#B8863B]/10 px-4 py-3 text-sm text-[#14213D]/70">
+        <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#B8863B]" />
+        <span>
+          Your application starts as <strong>Pending</strong> until an admin approves it.
+        </span>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="btn-ghost">
+      <div className="flex items-center justify-end gap-3 border-t border-[#14213D]/10 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex items-center gap-2 rounded-sm border border-[#14213D]/20 px-5 py-2.5 text-sm font-semibold text-[#14213D] transition hover:border-[#14213D] hover:bg-[#14213D]/5"
+        >
           <X className="h-4 w-4" /> Cancel
         </button>
-        <button type="submit" disabled={saving || !clubId} className="btn-primary sm:w-auto">
+        <button
+          type="submit"
+          disabled={saving || !clubId}
+          className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#14213D] px-5 py-2.5 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#B8863B] hover:text-[#14213D] disabled:opacity-60"
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Submit application
         </button>
@@ -123,6 +137,14 @@ interface PositionFormProps {
   onSaved: (m: Membership) => void;
   onCancel: () => void;
 }
+
+const POSITION_ACTIVE: Record<string, string> = {
+  PRESIDENT: 'bg-[#14213D] text-[#F7F3E8] border-[#14213D]',
+  VICE_PRESIDENT: 'bg-[#14213D] text-[#F7F3E8] border-[#14213D]',
+  SECRETARY: 'bg-[#14213D] text-[#F7F3E8] border-[#14213D]',
+  TREASURER: 'bg-[#B8863B] text-[#14213D] border-[#B8863B]',
+  MEMBER: 'bg-[#14213D] text-[#F7F3E8] border-[#14213D]',
+};
 
 export function PositionForm({ membership, onSaved, onCancel }: PositionFormProps) {
   const [position, setPosition] = useState(membership.position);
@@ -144,20 +166,22 @@ export function PositionForm({ membership, onSaved, onCancel }: PositionFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       {error && <ErrorBanner>{error}</ErrorBanner>}
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-slate-700">Member position</label>
-        <div className="flex flex-wrap gap-2">
+        <label style={mono} className="block text-[11px] font-medium uppercase tracking-[0.12em] text-[#14213D]/70">
+          Member position
+        </label>
+        <div className="flex flex-wrap gap-2 pt-1">
           {(['PRESIDENT', 'VICE_PRESIDENT', 'SECRETARY', 'TREASURER', 'MEMBER'] as const).map((p) => (
             <button
               key={p}
               type="button"
               onClick={() => setPosition(p)}
-              className={`rounded-xl px-3.5 py-2 text-sm font-medium transition ${
+              className={`rounded-sm border px-3.5 py-2 text-sm font-medium transition ${
                 position === p
-                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-300'
+                  ? POSITION_ACTIVE[p]
+                  : 'border-[#14213D]/20 text-[#14213D]/70 hover:bg-[#14213D]/5'
               }`}
             >
               {p.charAt(0) + p.slice(1).toLowerCase().replace('_', ' ')}
@@ -165,11 +189,19 @@ export function PositionForm({ membership, onSaved, onCancel }: PositionFormProp
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="btn-ghost">
+      <div className="flex items-center justify-end gap-3 border-t border-[#14213D]/10 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex items-center gap-2 rounded-sm border border-[#14213D]/20 px-5 py-2.5 text-sm font-semibold text-[#14213D] transition hover:border-[#14213D] hover:bg-[#14213D]/5"
+        >
           <X className="h-4 w-4" /> Cancel
         </button>
-        <button type="submit" disabled={saving} className="btn-primary sm:w-auto">
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#14213D] px-5 py-2.5 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#B8863B] hover:text-[#14213D] disabled:opacity-60"
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save position
         </button>

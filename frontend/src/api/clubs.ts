@@ -1,4 +1,4 @@
-import { request } from './client';
+import { store, uid, type SeedClub } from './db';
 
 export interface Club {
   id: string;
@@ -15,40 +15,51 @@ export interface ClubDTO {
   email: string;
 }
 
-function mapClub(c: unknown): Club {
-  const o = c as Record<string, unknown>;
-  return {
-    id: (o.id ?? o._id ?? '') as string,
-    clubName: (o.clubName ?? '') as string,
-    description: (o.description ?? '') as string,
-    advisor: (o.advisor ?? '') as string,
-    email: (o.email ?? '') as string,
-  };
+function toClub(c: SeedClub): Club {
+  return { id: c.id, clubName: c.clubName, description: c.description, advisor: c.advisor, email: c.email };
 }
 
 export const clubsApi = {
-  list: async (): Promise<Club[]> => {
-    const data = await request<unknown[]>('/clubs');
-    return (data ?? []).map(mapClub);
-  },
+  list: async (): Promise<Club[]> => store.clubs.list().map(toClub),
 
   get: async (id: string): Promise<Club> => {
-    const data = await request<unknown>(`/clubs/${id}`);
-    return mapClub(data);
+    const c = store.clubs.list().find((x) => x.id === id);
+    if (!c) throw new Error('Club not found');
+    return toClub(c);
   },
 
   create: async (dto: ClubDTO): Promise<Club> => {
-    const data = await request<unknown>('/clubs', { method: 'POST', body: dto });
-    return mapClub(data);
+    const c: SeedClub = {
+      id: uid(),
+      clubName: dto.clubName,
+      description: dto.description,
+      advisor: dto.advisor,
+      email: dto.email,
+      createdAt: new Date().toISOString(),
+    };
+    const next = [c, ...store.clubs.list()];
+    store.clubs.save(next);
+    return toClub(c);
   },
 
   update: async (id: string, dto: ClubDTO): Promise<Club> => {
-    const data = await request<unknown>(`/clubs/${id}`, { method: 'PUT', body: dto });
-    return mapClub(data);
+    const list = store.clubs.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Club not found');
+    const updated: SeedClub = {
+      ...list[idx],
+      clubName: dto.clubName,
+      description: dto.description,
+      advisor: dto.advisor,
+      email: dto.email,
+    };
+    list[idx] = updated;
+    store.clubs.save(list);
+    return toClub(updated);
   },
 
   remove: async (id: string): Promise<string> => {
-    const data = await request<string>(`/clubs/${id}`, { method: 'DELETE' });
-    return data;
+    store.clubs.save(store.clubs.list().filter((x) => x.id !== id));
+    return 'Club deleted.';
   },
 };

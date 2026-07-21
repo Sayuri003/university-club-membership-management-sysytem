@@ -12,6 +12,7 @@ interface ClubFormProps {
 }
 
 const empty: ClubDTO = { clubName: '', description: '', advisor: '', email: '' };
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
 
 export function ClubForm({ initial, onSaved, onCancel }: ClubFormProps) {
   const [form, setForm] = useState<ClubDTO>(initial ?? empty);
@@ -46,7 +47,7 @@ export function ClubForm({ initial, onSaved, onCancel }: ClubFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
       <Input
@@ -59,9 +60,11 @@ export function ClubForm({ initial, onSaved, onCancel }: ClubFormProps) {
       />
 
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-slate-700">Description</label>
+        <label style={mono} className="block text-[11px] font-medium uppercase tracking-[0.12em] text-[#14213D]/70">
+          Description
+        </label>
         <div className="relative">
-          <span className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400">
+          <span className="pointer-events-none absolute left-0 top-3 text-[#14213D]/40">
             <FileText className="h-4 w-4" />
           </span>
           <textarea
@@ -69,12 +72,12 @@ export function ClubForm({ initial, onSaved, onCancel }: ClubFormProps) {
             placeholder="What is this club about?"
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
-            className="input-field pl-11 resize-none"
+            className="w-full resize-none border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 pl-6 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:border-[#B8863B] focus:outline-none focus:ring-0"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <Input
           label="Advisor"
           placeholder="Faculty advisor name"
@@ -92,11 +95,19 @@ export function ClubForm({ initial, onSaved, onCancel }: ClubFormProps) {
         />
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="btn-ghost">
+      <div className="flex items-center justify-end gap-3 border-t border-[#14213D]/10 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex items-center gap-2 rounded-sm border border-[#14213D]/20 px-5 py-2.5 text-sm font-semibold text-[#14213D] transition hover:border-[#14213D] hover:bg-[#14213D]/5"
+        >
           <X className="h-4 w-4" /> Cancel
         </button>
-        <button type="submit" disabled={saving} className="btn-primary sm:w-auto">
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#14213D] px-5 py-2.5 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#B8863B] hover:text-[#14213D] disabled:opacity-60"
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {initial ? 'Save changes' : 'Create club'}
         </button>

@@ -1,4 +1,4 @@
-import { request } from './client';
+import { store, uid, type SeedEvent } from './db';
 
 export type EventStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
 
@@ -8,8 +8,8 @@ export interface EventItem {
   title: string;
   description: string;
   venue: string;
-  eventDate: string; // ISO date yyyy-mm-dd
-  eventTime: string; // HH:mm
+  eventDate: string;
+  eventTime: string;
   capacity: number;
   registeredCount: number;
   imageUrl: string;
@@ -29,67 +29,82 @@ export interface EventDTO {
   status: EventStatus;
 }
 
-function mapEvent(e: unknown): EventItem {
-  const o = e as Record<string, unknown>;
-  const dateVal = o.eventDate;
-  let eventDate = '';
-  if (dateVal) {
-    eventDate = typeof dateVal === 'string' ? dateVal.slice(0, 10) : String(dateVal).slice(0, 10);
-  }
-  const timeVal = o.eventTime;
-  let eventTime = '';
-  if (timeVal) {
-    eventTime = typeof timeVal === 'string' ? timeVal.slice(0, 5) : String(timeVal).slice(0, 5);
-  }
+function toEvent(e: SeedEvent): EventItem {
   return {
-    id: (o.id ?? o._id ?? '') as string,
-    clubId: (o.clubId ?? '') as string,
-    title: (o.title ?? '') as string,
-    description: (o.description ?? '') as string,
-    venue: (o.venue ?? '') as string,
-    eventDate,
-    eventTime,
-    capacity: Number(o.capacity ?? 0),
-    registeredCount: Number(o.registeredCount ?? 0),
-    imageUrl: (o.imageUrl ?? '') as string,
-    status: (o.status ?? 'OPEN') as EventStatus,
-    createdBy: o.createdBy as string | undefined,
+    id: e.id,
+    clubId: e.clubId,
+    title: e.title,
+    description: e.description,
+    venue: e.venue,
+    eventDate: e.eventDate,
+    eventTime: e.eventTime,
+    capacity: e.capacity,
+    registeredCount: e.registeredCount,
+    imageUrl: e.imageUrl,
+    status: e.status as EventStatus,
+    createdBy: e.createdBy,
   };
 }
 
 export const eventsApi = {
-  list: async (): Promise<EventItem[]> => {
-    const data = await request<unknown[]>('/events');
-    return (data ?? []).map(mapEvent);
-  },
+  list: async (): Promise<EventItem[]> => store.events.list().map(toEvent),
 
-  open: async (): Promise<EventItem[]> => {
-    const data = await request<unknown[]>('/events/open');
-    return (data ?? []).map(mapEvent);
-  },
+  open: async (): Promise<EventItem[]> =>
+    store.events.list().filter((e) => e.status === 'OPEN').map(toEvent),
 
-  byClub: async (clubId: string): Promise<EventItem[]> => {
-    const data = await request<unknown[]>(`/events/club/${clubId}`);
-    return (data ?? []).map(mapEvent);
-  },
+  byClub: async (clubId: string): Promise<EventItem[]> =>
+    store.events.list().filter((e) => e.clubId === clubId).map(toEvent),
 
   get: async (id: string): Promise<EventItem> => {
-    const data = await request<unknown>(`/events/${id}`);
-    return mapEvent(data);
+    const e = store.events.list().find((x) => x.id === id);
+    if (!e) throw new Error('Event not found');
+    return toEvent(e);
   },
 
   create: async (dto: EventDTO): Promise<EventItem> => {
-    const data = await request<unknown>('/events', { method: 'POST', body: dto });
-    return mapEvent(data);
+    const e: SeedEvent = {
+      id: uid(),
+      clubId: dto.clubId,
+      title: dto.title,
+      description: dto.description,
+      venue: dto.venue,
+      eventDate: dto.eventDate,
+      eventTime: dto.eventTime,
+      capacity: dto.capacity,
+      registeredCount: 0,
+      imageUrl: dto.imageUrl,
+      status: dto.status,
+      createdBy: dto.clubId,
+      createdAt: new Date().toISOString(),
+    };
+    store.events.save([e, ...store.events.list()]);
+    return toEvent(e);
   },
 
   update: async (id: string, dto: EventDTO): Promise<EventItem> => {
-    const data = await request<unknown>(`/events/${id}`, { method: 'PUT', body: dto });
-    return mapEvent(data);
+    const list = store.events.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Event not found');
+    const updated: SeedEvent = {
+      ...list[idx],
+      clubId: dto.clubId,
+      title: dto.title,
+      description: dto.description,
+      venue: dto.venue,
+      eventDate: dto.eventDate,
+      eventTime: dto.eventTime,
+      capacity: dto.capacity,
+      imageUrl: dto.imageUrl,
+      status: dto.status,
+    };
+    list[idx] = updated;
+    store.events.save(list);
+    return toEvent(updated);
   },
 
   remove: async (id: string): Promise<string> => {
-    return request<string>(`/events/${id}`, { method: 'DELETE' });
+    store.events.save(store.events.list().filter((x) => x.id !== id));
+    return 'Event deleted.';
   },
 };
 

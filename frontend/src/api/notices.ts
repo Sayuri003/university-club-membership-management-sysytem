@@ -1,4 +1,4 @@
-import { request } from './client';
+import { store, uid, type SeedNotice } from './db';
 
 export type NoticeStatus = 'ACTIVE' | 'EXPIRED';
 
@@ -22,55 +22,65 @@ export interface NoticeDTO {
   status?: NoticeStatus;
 }
 
-function mapNotice(n: unknown): Notice {
-  const o = n as Record<string, unknown>;
+function toNotice(n: SeedNotice): Notice {
   return {
-    id: (o.id ?? o._id ?? '') as string,
-    clubId: (o.clubId ?? '') as string,
-    title: (o.title ?? '') as string,
-    content: (o.content ?? '') as string,
-    attachmentUrl: o.attachmentUrl as string | undefined,
-    publishedBy: o.publishedBy as string | undefined,
-    publishedAt: o.publishedAt as string | undefined,
-    status: (o.status ?? 'ACTIVE') as NoticeStatus,
+    id: n.id,
+    clubId: n.clubId,
+    title: n.title,
+    content: n.content,
+    attachmentUrl: n.attachmentUrl || undefined,
+    publishedBy: n.publishedBy,
+    publishedAt: n.publishedAt,
+    status: n.status as NoticeStatus,
   };
 }
 
 export const noticesApi = {
-  active: async (): Promise<Notice[]> => {
-    const data = await request<unknown[]>('/notices');
-    return (data ?? []).map(mapNotice);
-  },
+  active: async (): Promise<Notice[]> =>
+    store.notices.list().filter((n) => n.status === 'ACTIVE').map(toNotice),
 
-  list: async (): Promise<Notice[]> => {
-    // The backend's GET /api/notices returns only ACTIVE ones for users.
-    // Admins need all notices; the same endpoint is the closest available.
-    const data = await request<unknown[]>('/notices');
-    return (data ?? []).map(mapNotice);
-  },
+  list: async (): Promise<Notice[]> => store.notices.list().map(toNotice),
 
   get: async (id: string): Promise<Notice> => {
-    const data = await request<unknown>(`/notices/${id}`);
-    return mapNotice(data);
+    const n = store.notices.list().find((x) => x.id === id);
+    if (!n) throw new Error('Notice not found');
+    return toNotice(n);
   },
 
-  forClub: async (clubId: string): Promise<Notice[]> => {
-    const data = await request<unknown[]>(`/notices/club/${clubId}`);
-    return (data ?? []).map(mapNotice);
-  },
+  forClub: async (clubId: string): Promise<Notice[]> =>
+    store.notices.list().filter((n) => n.clubId === clubId).map(toNotice),
 
   create: async (dto: NoticeDTO): Promise<Notice> => {
-    const data = await request<unknown>('/notices', { method: 'POST', body: dto });
-    return mapNotice(data);
+    const n: SeedNotice = {
+      id: uid(),
+      clubId: dto.clubId,
+      title: dto.title,
+      content: dto.content,
+      attachmentUrl: dto.attachmentUrl ?? '',
+      publishedBy: dto.publishedBy ?? '',
+      publishedAt: new Date().toISOString(),
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+    };
+    store.notices.save([n, ...store.notices.list()]);
+    return toNotice(n);
   },
 
   update: async (id: string, dto: NoticeDTO): Promise<Notice> => {
-    const data = await request<unknown>(`/notices/${id}`, { method: 'PUT', body: dto });
-    return mapNotice(data);
+    const list = store.notices.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Notice not found');
+    list[idx].title = dto.title;
+    list[idx].content = dto.content;
+    list[idx].attachmentUrl = dto.attachmentUrl ?? '';
+    if (dto.status) list[idx].status = dto.status;
+    store.notices.save(list);
+    return toNotice(list[idx]);
   },
 
   remove: async (id: string): Promise<string> => {
-    return request<string>(`/notices/${id}`, { method: 'DELETE' });
+    store.notices.save(store.notices.list().filter((x) => x.id !== id));
+    return 'Notice deleted.';
   },
 };
 

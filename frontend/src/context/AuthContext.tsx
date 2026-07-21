@@ -1,10 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { authApi, type LoginRequest, type RegisterRequest, type Role } from '../api/auth';
-import { ApiError } from '../api/client';
+import { PageLoader } from '../components/PageLoader';
 
-// The backend's JwtResponse currently returns only token + email (no role claim).
-// The seeded admin account is admin@ucms.com — we treat that email as ADMIN until
-// the backend exposes a /me endpoint or a role claim in the JWT.
+// Minimal error shape so login/register pages can read .message.
+class AuthError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+const ApiError = AuthError;
+
 const ADMIN_EMAIL = 'admin@ucms.com';
 
 interface AuthUser {
@@ -33,9 +38,6 @@ function deriveRole(email: string): Role {
   return email.toLowerCase() === ADMIN_EMAIL ? 'ADMIN' : 'USER';
 }
 
-// The backend's JWT currently exposes only email (no userId claim).
-// Derive a stable identifier from the email so membership requests can
-// reference a consistent user id until the backend returns one.
 function deriveUserId(email: string): string {
   return email.toLowerCase();
 }
@@ -44,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(false);
+  // NEW: tracks whether the initial rehydration-from-localStorage pass has finished.
+  const [initializing, setInitializing] = useState(true);
 
   // Rehydrate user from stored token/email on mount.
   useEffect(() => {
@@ -53,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(storedToken);
       setUser({ email: storedEmail, role: deriveRole(storedEmail), userId: deriveUserId(storedEmail) });
     }
+    setInitializing(false); // NEW
   }, []);
 
   const persist = (t: string, email: string) => {
@@ -102,6 +107,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }),
     [user, token, loading, login, register, logout],
   );
+
+  // NEW: block rendering (and thus all routes) until rehydration is done,
+  // so ProtectedRoute/AdminRoute never see a stale isAuthenticated=false.
+  if (initializing) {
+    return <PageLoader />;
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

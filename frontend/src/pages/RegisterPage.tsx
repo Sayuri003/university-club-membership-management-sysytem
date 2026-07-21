@@ -78,13 +78,16 @@ export default function RegisterPage() {
       footer={
         <>
           Already a member?{' '}
-          <Link to="/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
+          <Link
+            to="/login"
+            className="font-semibold text-[#14213D] underline decoration-[#B8863B] decoration-2 underline-offset-4 hover:text-[#B8863B]"
+          >
             Sign in
           </Link>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {error && <ErrorBanner>{error}</ErrorBanner>}
 
         <Input
@@ -124,11 +127,11 @@ export default function RegisterPage() {
             error={visibleError('password')}
             required
           />
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             <button
               type="button"
               onClick={() => setShowPassword((s) => !s)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[#14213D]/50 hover:text-[#14213D]"
             >
               {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               {showPassword ? 'Hide' : 'Show'} password
@@ -137,7 +140,9 @@ export default function RegisterPage() {
               {passwordChecks.map((c) => (
                 <span
                   key={c.label}
-                  className={`inline-flex items-center gap-1 text-[11px] ${c.ok ? 'text-emerald-600' : 'text-slate-400'}`}
+                  className={`inline-flex items-center gap-1 text-[11px] ${
+                    c.ok ? 'text-[#5C7A6B]' : 'text-[#14213D]/30'
+                  }`}
                 >
                   <Check className="h-3 w-3" /> {c.label}
                 </span>
@@ -146,7 +151,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <Input
             label="Student ID"
             placeholder="IT21012345"
@@ -159,11 +164,15 @@ export default function RegisterPage() {
           />
 
           <div className="space-y-1.5">
-            <label htmlFor="department" className="block text-sm font-medium text-slate-700">
+            <label
+              htmlFor="department"
+              style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
+              className="block text-[11px] font-medium uppercase tracking-[0.12em] text-[#14213D]/70"
+            >
               Department
             </label>
             <div className="relative">
-              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+              <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[#14213D]/40">
                 <Building2 className="h-4 w-4" />
               </span>
               <select
@@ -171,7 +180,9 @@ export default function RegisterPage() {
                 value={form.department}
                 onChange={(e) => set('department', e.target.value)}
                 onBlur={() => markTouched('department')}
-                className={`input-field pl-11 ${visibleError('department') ? 'border-rose-400' : ''}`}
+                className={`w-full border-0 border-b-2 bg-transparent py-2.5 pl-6 text-[15px] text-[#14213D] focus:outline-none focus:ring-0 ${
+                  visibleError('department') ? 'border-[#B3413A]' : 'border-[#14213D]/15 focus:border-[#B8863B]'
+                }`}
                 required
               >
                 <option value="">Select...</option>
@@ -181,16 +192,20 @@ export default function RegisterPage() {
               </select>
             </div>
             {visibleError('department') && (
-              <p className="text-xs font-medium text-rose-600">{visibleError('department')}</p>
+              <p className="text-xs font-medium text-[#B3413A]">{visibleError('department')}</p>
             )}
           </div>
         </div>
 
-        <button type="submit" disabled={loading} className="btn-primary">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-sm bg-[#14213D] py-3 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#B8863B] hover:text-[#14213D] disabled:opacity-60"
+        >
           {loading ? <Spinner /> : <>Create account <ArrowRight className="h-4 w-4" /></>}
         </button>
 
-        <p className="text-center text-xs text-slate-400">
+        <p className="text-center text-xs text-[#14213D]/40">
           By creating an account you agree to the club's code of conduct.
         </p>
       </form>

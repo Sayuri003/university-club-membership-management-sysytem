@@ -10,6 +10,8 @@ interface ModalProps {
   children: ReactNode;
 }
 
+const serif = { fontFamily: "'Newsreader', Georgia, serif" };
+
 export function Modal({ open, onClose, title, description, children }: ModalProps) {
   useEffect(() => {
     if (!open) return;
@@ -29,24 +31,29 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#14213D]/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-        <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-sm border border-[#14213D]/10 bg-[#F7F3E8] shadow-2xl lg:max-w-3xl">
+        {/* Header (fixed) */}
+        <div className="flex items-start justify-between gap-4 border-b-2 border-[#B8863B] px-6 py-5 sm:px-8">
           <div>
-            <h2 className="font-display text-xl font-bold text-slate-900">{title}</h2>
-            {description && <p className="mt-1 text-sm text-slate-500">{description}</p>}
+            <h2 style={serif} className="text-xl font-medium text-[#14213D]">{title}</h2>
+            {description && <p className="mt-1 text-sm text-[#14213D]/60">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-sm p-2 text-[#14213D]/40 transition hover:bg-[#14213D]/5 hover:text-[#14213D]"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        {children}
+
+        {/* Body (scrolls if content overflows) */}
+        <div className="overflow-y-auto px-6 py-6 sm:px-8">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -75,15 +82,19 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onCancel} title={title}>
-      <p className="text-sm text-slate-600">{message}</p>
+      <p className="text-sm text-[#14213D]/70">{message}</p>
       <div className="mt-6 flex items-center justify-end gap-3">
-        <button onClick={onCancel} className="btn-ghost" disabled={loading}>
+        <button
+          onClick={onCancel}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-sm border border-[#14213D]/20 px-5 py-2.5 text-sm font-semibold text-[#14213D] transition hover:border-[#14213D] hover:bg-[#14213D]/5 disabled:opacity-60"
+        >
           {cancelLabel}
         </button>
         <button
           onClick={onConfirm}
           disabled={loading}
-          className="btn-primary sm:w-auto bg-rose-600 shadow-rose-600/20 hover:bg-rose-700"
+          className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#B3413A] px-5 py-2.5 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#7A2C26] disabled:opacity-60"
         >
           {loading ? 'Deleting...' : confirmLabel}
         </button>

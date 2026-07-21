@@ -11,29 +11,37 @@ export function Input({ label, icon, error, hint, id, className = '', ...rest }:
   const inputId = id || `input-${label.toLowerCase().replace(/\s+/g, '-')}`;
   return (
     <div className="space-y-1.5">
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+      <label
+        htmlFor={inputId}
+        style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
+        className="block text-[11px] font-medium uppercase tracking-[0.12em] text-[#14213D]/70"
+      >
         {label}
       </label>
       <div className="relative">
         {icon && (
-          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+          <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[#14213D]/40">
             {icon}
           </span>
         )}
         <input
           id={inputId}
-          className={`input-field ${icon ? 'pl-11' : ''} ${error ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : ''} ${className}`}
+          className={`w-full border-0 border-b-2 bg-transparent py-2.5 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:outline-none focus:ring-0 ${
+            icon ? 'pl-6' : ''
+          } ${
+            error ? 'border-[#B3413A] focus:border-[#B3413A]' : 'border-[#14213D]/15 focus:border-[#B8863B]'
+          } ${className}`}
           aria-invalid={!!error}
           aria-describedby={error ? `${inputId}-error` : undefined}
           {...rest}
         />
       </div>
       {error ? (
-        <p id={`${inputId}-error`} className="text-xs font-medium text-rose-600">
+        <p id={`${inputId}-error`} className="text-xs font-medium text-[#B3413A]">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-xs text-slate-500">{hint}</p>
+        <p className="text-xs text-[#14213D]/50">{hint}</p>
       ) : null}
     </div>
   );

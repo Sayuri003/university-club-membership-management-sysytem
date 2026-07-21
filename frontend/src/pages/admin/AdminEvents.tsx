@@ -1,22 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DashboardShell } from '../../components/DashboardShell';
-import { LayoutDashboard, Building2, CalendarDays, Plus } from 'lucide-react';
+import { LayoutDashboard, Building2, CalendarDays, BadgeCheck, Megaphone, Plus } from 'lucide-react';
 import { eventsApi, type EventItem, type EventStatus } from '../../api/events';
 import { clubsApi, type Club } from '../../api/clubs';
 import { EventCard } from '../../components/EventCard';
 import { EventForm } from '../../components/EventForm';
 import { Modal, ConfirmDialog } from '../../components/Modal';
 import {
-  ClubsLoading as EventsLoading,
   ClubsError as EventsError,
   ClubsEmpty as EventsEmpty,
 } from '../../components/ClubCard';
 import { ApiError } from '../../api/client';
+import { PageLoader } from '../../components/PageLoader';
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/clubs', label: 'Clubs', icon: Building2 },
   { to: '/admin/events', label: 'Events', icon: CalendarDays },
+  { to: '/admin/memberships', label: 'Memberships', icon: BadgeCheck },
+  { to: '/admin/notices', label: 'Notices', icon: Megaphone },
 ];
 
 type Filter = 'ALL' | EventStatus;
@@ -27,6 +29,9 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'CLOSED', label: 'Closed' },
   { key: 'CANCELLED', label: 'Cancelled' },
 ];
+
+const serif = { fontFamily: "'Newsreader', Georgia, serif" };
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
 
 export default function AdminEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -113,14 +118,22 @@ export default function AdminEvents() {
     }
   };
 
+  // Full-page loader while events + clubs are being fetched together.
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <DashboardShell navItems={navItems} badge="Admin">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b-2 border-[#B8863B] pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900">Manage events</h1>
-          <p className="mt-2 text-slate-500">Create, update and remove club events.</p>
+          <h1 style={serif} className="text-3xl font-medium text-[#14213D]">Manage events</h1>
+          <p className="mt-2 text-[#14213D]/60">Create, update and remove club events.</p>
         </div>
-        <button onClick={() => setCreateOpen(true)} className="btn-primary sm:w-auto">
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="inline-flex items-center gap-2 rounded-sm bg-[#14213D] px-5 py-2.5 text-sm font-semibold text-[#F7F3E8] transition hover:bg-[#B8863B] hover:text-[#14213D] sm:w-auto"
+        >
           <Plus className="h-4 w-4" /> New event
         </button>
       </div>
@@ -132,16 +145,17 @@ export default function AdminEvents() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-medium transition ${
                 filter === f.key
-                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-300'
+                  ? 'border-[#14213D] bg-[#14213D] text-[#F7F3E8]'
+                  : 'border-[#14213D]/20 text-[#14213D]/70 hover:border-[#B8863B]/50 hover:bg-[#14213D]/5'
               }`}
             >
               {f.label}
               <span
-                className={`rounded-full px-1.5 text-[11px] font-semibold ${
-                  filter === f.key ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
+                style={mono}
+                className={`rounded-sm px-1.5 text-[10px] font-semibold ${
+                  filter === f.key ? 'bg-white/20' : 'bg-[#14213D]/8 text-[#14213D]/50'
                 }`}
               >
                 {counts[f.key] ?? 0}
@@ -153,20 +167,18 @@ export default function AdminEvents() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search events..."
-          className="input-field max-w-xs"
+          className="max-w-xs border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:border-[#B8863B] focus:outline-none focus:ring-0"
         />
       </div>
 
       {formError && (
-        <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="mt-4 flex items-start gap-3 rounded-sm border-l-4 border-[#B3413A] bg-[#B3413A]/[0.06] px-4 py-3 text-sm text-[#7A2C26]">
           {formError}
         </div>
       )}
 
       <div className="mt-8">
-        {loading ? (
-          <EventsLoading label="Loading events..." />
-        ) : error ? (
+        {error ? (
           <EventsError message={error} />
         ) : filtered.length === 0 ? (
           <EventsEmpty message={query ? 'No events match your search.' : 'No events yet. Create the first one.'} />

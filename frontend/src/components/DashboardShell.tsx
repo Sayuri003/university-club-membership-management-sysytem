@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Brand } from './Brand';
 import { useAuth } from '../context/AuthContext';
+import { useLoading } from '../context/LoadingContext';
 import {
   LayoutDashboard,
   Users,
@@ -24,10 +25,13 @@ interface DashboardShellProps {
   children: ReactNode;
 }
 
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
+
 export function DashboardShell({ navItems, badge, children }: DashboardShellProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { startLoading } = useLoading();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
@@ -38,16 +42,32 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
   const isActive = (to: string) =>
     location.pathname === to || location.pathname.startsWith(`${to}/`);
 
+  const navLinkClass = (active: boolean) =>
+    `flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition ${
+      active
+        ? 'bg-[#14213D] text-[#F7F3E8]'
+        : 'text-[#14213D]/70 hover:bg-[#14213D]/5 hover:text-[#14213D]'
+    }`;
+
+  const handleNavClick = (active: boolean) => {
+    if (!active) {
+      startLoading();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F7F3E8]">
       {/* Sidebar (desktop) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white lg:flex">
-        <div className="flex h-16 items-center px-6">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-[#14213D]/10 bg-[#F7F3E8] lg:flex">
+        <div className="flex h-16 items-center border-b border-[#14213D]/10 px-6">
           <Brand />
         </div>
         {badge && (
-          <div className="px-6 pb-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <div className="px-6 pt-4">
+            <span
+              style={mono}
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#B8863B]/40 bg-[#B8863B]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#B8863B]"
+            >
               <ShieldCheck className="h-3.5 w-3.5" /> {badge}
             </span>
           </div>
@@ -59,31 +79,28 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                  active
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
+                onClick={() => handleNavClick(active)}
+                className={navLinkClass(active)}
               >
-                <item.icon className={`h-4 w-4 ${active ? 'text-emerald-600' : 'text-slate-400'}`} />
+                <item.icon className={`h-4 w-4 ${active ? 'text-[#B8863B]' : 'text-[#14213D]/40'}`} />
                 {item.label}
               </Link>
             );
           })}
         </nav>
-        <div className="border-t border-slate-200 p-4">
-          <div className="flex items-center gap-3 rounded-xl px-3 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+        <div className="border-t border-[#14213D]/10 p-4">
+          <div className="flex items-center gap-3 rounded-sm px-3 py-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#14213D]/8 text-[#14213D]/60">
               <UserIcon className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-700">{user?.email}</p>
-              <p className="text-xs text-slate-400">{user?.role}</p>
+              <p className="truncate text-sm font-medium text-[#14213D]">{user?.email}</p>
+              <p style={mono} className="text-[10px] uppercase tracking-wider text-[#14213D]/40">{user?.role}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-600"
+            className="mt-2 flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium text-[#14213D]/70 transition hover:bg-[#B3413A]/10 hover:text-[#B3413A]"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
@@ -91,11 +108,11 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[#14213D]/10 bg-[#F7F3E8]/90 px-4 backdrop-blur lg:hidden">
         <Brand />
         <button
           onClick={() => setMobileOpen((o) => !o)}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+          className="rounded-sm p-2 text-[#14213D] hover:bg-[#14213D]/5"
           aria-label="Toggle menu"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -106,15 +123,15 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#14213D]/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-72 max-w-[80%] bg-white shadow-xl">
-            <div className="flex h-16 items-center justify-between px-6">
+          <aside className="absolute inset-y-0 left-0 w-72 max-w-[80%] bg-[#F7F3E8] shadow-xl">
+            <div className="flex h-16 items-center justify-between border-b border-[#14213D]/10 px-6">
               <Brand />
               <button
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                className="rounded-sm p-2 text-[#14213D]/60 hover:bg-[#14213D]/5"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -126,24 +143,23 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
                   <Link
                     key={item.to}
                     to={item.to}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                      active
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }`}
+                    onClick={() => {
+                      handleNavClick(active);
+                      setMobileOpen(false);
+                    }}
+                    className={navLinkClass(active)}
                   >
-                    <item.icon className={`h-4 w-4 ${active ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    <item.icon className={`h-4 w-4 ${active ? 'text-[#B8863B]' : 'text-[#14213D]/40'}`} />
                     {item.label}
                   </Link>
                 );
               })}
             </nav>
-            <div className="border-t border-slate-200 p-4">
-              <p className="truncate text-sm font-medium text-slate-700">{user?.email}</p>
+            <div className="border-t border-[#14213D]/10 p-4">
+              <p className="truncate text-sm font-medium text-[#14213D]">{user?.email}</p>
               <button
                 onClick={handleLogout}
-                className="mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                className="mt-3 flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium text-[#B3413A] transition hover:bg-[#B3413A]/10"
               >
                 <LogOut className="h-4 w-4" /> Sign out
               </button>
@@ -154,7 +170,7 @@ export function DashboardShell({ navItems, badge, children }: DashboardShellProp
 
       {/* Main content */}
       <main className="lg:pl-64">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10 animate-fade-in">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
           {children}
         </div>
       </main>

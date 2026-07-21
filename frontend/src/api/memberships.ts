@@ -1,4 +1,4 @@
-import { request } from './client';
+import { store, uid, type SeedMembership } from './db';
 
 export type MemberPosition = 'PRESIDENT' | 'VICE_PRESIDENT' | 'SECRETARY' | 'TREASURER' | 'MEMBER';
 export type MembershipStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -21,57 +21,82 @@ export interface MembershipDTO {
   approvedBy?: string;
 }
 
-function mapMembership(m: unknown): Membership {
-  const o = m as Record<string, unknown>;
+function toMembership(m: SeedMembership): Membership {
   return {
-    id: (o.id ?? o._id ?? '') as string,
-    userId: (o.userId ?? '') as string,
-    clubId: (o.clubId ?? '') as string,
-    position: (o.position ?? 'MEMBER') as MemberPosition,
-    status: (o.status ?? 'PENDING') as MembershipStatus,
-    approvedBy: o.approvedBy as string | undefined,
-    joinedDate: o.joinedDate as string | undefined,
+    id: m.id,
+    userId: m.userId,
+    clubId: m.clubId,
+    position: m.position as MemberPosition,
+    status: m.status as MembershipStatus,
+    approvedBy: m.approvedBy ?? undefined,
+    joinedDate: m.joinedDate,
   };
 }
 
 export const membershipsApi = {
   apply: async (dto: MembershipDTO): Promise<Membership> => {
-    const data = await request<unknown>('/memberships', { method: 'POST', body: dto });
-    return mapMembership(data);
+    if (!dto.userId || !dto.clubId) throw new Error('User and club are required.');
+    const list = store.memberships.list();
+    if (list.some((m) => m.userId === dto.userId && m.clubId === dto.clubId)) {
+      throw new Error('Already applied.');
+    }
+    const m: SeedMembership = {
+      id: uid(),
+      userId: dto.userId,
+      clubId: dto.clubId,
+      position: 'MEMBER',
+      status: 'PENDING',
+      approvedBy: null,
+      joinedDate: new Date().toISOString().slice(0, 10),
+      createdAt: new Date().toISOString(),
+    };
+    store.memberships.save([m, ...list]);
+    return toMembership(m);
   },
 
   get: async (id: string): Promise<Membership> => {
-    const data = await request<unknown>(`/memberships/${id}`);
-    return mapMembership(data);
+    const m = store.memberships.list().find((x) => x.id === id);
+    if (!m) throw new Error('Membership not found');
+    return toMembership(m);
   },
 
-  forUser: async (userId: string): Promise<Membership[]> => {
-    const data = await request<unknown[]>(`/memberships/user/${userId}`);
-    return (data ?? []).map(mapMembership);
-  },
+  forUser: async (userId: string): Promise<Membership[]> =>
+    store.memberships.list().filter((m) => m.userId === userId).map(toMembership),
 
-  list: async (): Promise<Membership[]> => {
-    const data = await request<unknown[]>('/memberships');
-    return (data ?? []).map(mapMembership);
-  },
+  list: async (): Promise<Membership[]> => store.memberships.list().map(toMembership),
 
   update: async (id: string, dto: MembershipDTO): Promise<Membership> => {
-    const data = await request<unknown>(`/memberships/${id}`, { method: 'PUT', body: dto });
-    return mapMembership(data);
+    const list = store.memberships.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Membership not found');
+    if (dto.position) list[idx].position = dto.position;
+    store.memberships.save(list);
+    return toMembership(list[idx]);
   },
 
   approve: async (id: string, adminId: string): Promise<Membership> => {
-    const data = await request<unknown>(`/memberships/${id}/approve/${adminId}`, { method: 'PUT' });
-    return mapMembership(data);
+    const list = store.memberships.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Membership not found');
+    list[idx].status = 'APPROVED';
+    list[idx].approvedBy = adminId;
+    store.memberships.save(list);
+    return toMembership(list[idx]);
   },
 
   reject: async (id: string, adminId: string): Promise<Membership> => {
-    const data = await request<unknown>(`/memberships/${id}/reject/${adminId}`, { method: 'PUT' });
-    return mapMembership(data);
+    const list = store.memberships.list();
+    const idx = list.findIndex((x) => x.id === id);
+    if (idx === -1) throw new Error('Membership not found');
+    list[idx].status = 'REJECTED';
+    list[idx].approvedBy = adminId;
+    store.memberships.save(list);
+    return toMembership(list[idx]);
   },
 
   remove: async (id: string): Promise<string> => {
-    return request<string>(`/memberships/${id}`, { method: 'DELETE' });
+    store.memberships.save(store.memberships.list().filter((x) => x.id !== id));
+    return 'Membership deleted.';
   },
 };
 

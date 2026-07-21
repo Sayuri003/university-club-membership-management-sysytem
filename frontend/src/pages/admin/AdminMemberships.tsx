@@ -8,11 +8,11 @@ import { MembershipCard } from '../../components/MembershipCard';
 import { PositionForm } from '../../components/MembershipForm';
 import { Modal, ConfirmDialog } from '../../components/Modal';
 import {
-  ClubsLoading as MembershipsLoading,
   ClubsError as MembershipsError,
   ClubsEmpty as MembershipsEmpty,
 } from '../../components/ClubCard';
 import { ApiError } from '../../api/client';
+import { PageLoader } from '../../components/PageLoader';
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -29,6 +29,9 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'APPROVED', label: 'Approved' },
   { key: 'REJECTED', label: 'Rejected' },
 ];
+
+const serif = { fontFamily: "'Newsreader', Georgia, serif" };
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
 
 export default function AdminMemberships() {
   const { user } = useAuth();
@@ -129,12 +132,17 @@ export default function AdminMemberships() {
     }
   };
 
+  // Full-page loader while memberships + clubs are being fetched together.
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <DashboardShell navItems={navItems} badge="Admin">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b-2 border-[#B8863B] pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900">Manage memberships</h1>
-          <p className="mt-2 text-slate-500">Review applications, assign positions and remove members.</p>
+          <h1 style={serif} className="text-3xl font-medium text-[#14213D]">Manage memberships</h1>
+          <p className="mt-2 text-[#14213D]/60">Review applications, assign positions and remove members.</p>
         </div>
       </div>
 
@@ -144,16 +152,17 @@ export default function AdminMemberships() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-medium transition ${
                 filter === f.key
-                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-300'
+                  ? 'border-[#14213D] bg-[#14213D] text-[#F7F3E8]'
+                  : 'border-[#14213D]/20 text-[#14213D]/70 hover:border-[#B8863B]/50 hover:bg-[#14213D]/5'
               }`}
             >
               {f.label}
               <span
-                className={`rounded-full px-1.5 text-[11px] font-semibold ${
-                  filter === f.key ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
+                style={mono}
+                className={`rounded-sm px-1.5 text-[10px] font-semibold ${
+                  filter === f.key ? 'bg-white/20' : 'bg-[#14213D]/8 text-[#14213D]/50'
                 }`}
               >
                 {counts[f.key] ?? 0}
@@ -165,20 +174,18 @@ export default function AdminMemberships() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by club, position or user..."
-          className="input-field max-w-xs"
+          className="max-w-xs border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:border-[#B8863B] focus:outline-none focus:ring-0"
         />
       </div>
 
       {actionError && (
-        <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="mt-4 flex items-start gap-3 rounded-sm border-l-4 border-[#B3413A] bg-[#B3413A]/[0.06] px-4 py-3 text-sm text-[#7A2C26]">
           {actionError}
         </div>
       )}
 
       <div className="mt-8">
-        {loading ? (
-          <MembershipsLoading label="Loading memberships..." />
-        ) : error ? (
+        {error ? (
           <MembershipsError message={error} />
         ) : filtered.length === 0 ? (
           <MembershipsEmpty message={query ? 'No memberships match your search.' : 'No memberships yet.'} />

@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Users, GraduationCap, Sparkles } from 'lucide-react';
+import { Landmark } from 'lucide-react';
 
 export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-3 group">
-      <div className="relative">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-600/30 transition-transform group-hover:scale-105">
-          <ShieldCheck className="h-5 w-5 text-white" strokeWidth={2.5} />
-        </div>
-        <span className="absolute -right-1 -top-1 flex h-3 w-3 rounded-full bg-amber-400 ring-2 ring-white" />
+      <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#14213D] ring-2 ring-[#B8863B]/60 transition-transform group-hover:scale-105">
+        <Landmark className="h-5 w-5 text-[#F7F3E8]" strokeWidth={2} />
+        <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-[#B8863B] ring-2 ring-white" />
       </div>
       {!compact && (
         <div className="leading-tight">
-          <p className="font-display text-lg font-bold text-slate-900">UCMS</p>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-600">
-            Club Membership
+          <p
+            style={{ fontFamily: "'Newsreader', Georgia, serif" }}
+            className="text-lg font-semibold tracking-tight text-[#14213D]"
+          >
+            UCMS
+          </p>
+          <p
+            style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
+            className="text-[10px] font-medium uppercase tracking-[0.15em] text-[#B8863B]"
+          >
+            Club Registry
           </p>
         </div>
       )}
@@ -24,11 +30,9 @@ export function Brand({ compact = false }: { compact?: boolean }) {
 
 export function FeaturePill({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 backdrop-blur">
-      <Icon className="h-3.5 w-3.5 text-emerald-600" />
+    <div className="inline-flex items-center gap-2 rounded-sm border border-[#14213D]/15 bg-[#F7F3E8]/80 px-3 py-1.5 text-xs font-medium text-[#14213D] backdrop-blur">
+      <Icon className="h-3.5 w-3.5 text-[#B8863B]" />
       {label}
     </div>
   );
 }
-
-export { Users, GraduationCap, Sparkles };

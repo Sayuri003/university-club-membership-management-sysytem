@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DashboardShell } from '../../components/DashboardShell';
-import { LayoutDashboard, Building2, CalendarDays, BadgeCheck } from 'lucide-react';
+import { LayoutDashboard, Building2, CalendarDays, BadgeCheck, Megaphone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { membershipsApi, type Membership, type MembershipStatus } from '../../api/memberships';
 import { clubsApi, type Club } from '../../api/clubs';
@@ -18,6 +18,7 @@ const navItems = [
   { to: '/user/clubs', label: 'Clubs', icon: Building2 },
   { to: '/user/events', label: 'Events', icon: CalendarDays },
   { to: '/user/memberships', label: 'Memberships', icon: BadgeCheck },
+  { to: '/user/notices', label: 'Notices', icon: Megaphone },
 ];
 
 type Filter = 'ALL' | MembershipStatus;
@@ -27,6 +28,8 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'APPROVED', label: 'Approved' },
   { key: 'REJECTED', label: 'Rejected' },
 ];
+
+const mono = { fontFamily: "'IBM Plex Mono', ui-monospace, monospace" };
 
 export default function UserMemberships() {
   const { user } = useAuth();
@@ -106,16 +109,17 @@ export default function UserMemberships() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-medium transition ${
                 filter === f.key
-                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-300'
+                  ? 'border-[#14213D] bg-[#14213D] text-[#F7F3E8]'
+                  : 'border-[#14213D]/20 text-[#14213D]/70 hover:border-[#B8863B]/50 hover:bg-[#14213D]/5'
               }`}
             >
               {f.label}
               <span
-                className={`rounded-full px-1.5 text-[11px] font-semibold ${
-                  filter === f.key ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
+                style={mono}
+                className={`rounded-sm px-1.5 text-[10px] font-semibold ${
+                  filter === f.key ? 'bg-white/20' : 'bg-[#14213D]/8 text-[#14213D]/50'
                 }`}
               >
                 {counts[f.key] ?? 0}
@@ -127,7 +131,7 @@ export default function UserMemberships() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search memberships..."
-          className="input-field max-w-xs"
+          className="max-w-xs border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:border-[#B8863B] focus:outline-none focus:ring-0"
         />
       </div>
 

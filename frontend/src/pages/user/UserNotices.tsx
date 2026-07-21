@@ -80,7 +80,7 @@ export default function UserNotices() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search notices..."
-          className="input-field max-w-md"
+          className="max-w-md border-0 border-b-2 border-[#14213D]/15 bg-transparent py-2.5 text-[15px] text-[#14213D] placeholder:text-[#14213D]/30 focus:border-[#B8863B] focus:outline-none focus:ring-0"
         />
       </div>
 
